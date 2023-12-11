@@ -49,21 +49,21 @@ def extract_prompt(message: Message, bot_name: str) -> Optional[str]:
     """
     msg_text: str = message.text.strip()
     if msg_text.startswith("@"):
-        if not msg_text.startswith(f"@{bot_name} "):
+        return (
+            None
+            if not msg_text.startswith(f"@{bot_name} ")
+            else msg_text[len(bot_name) + 2 :]
+        )
+    start_words = ["prompt:", "/prompt", "prompt_pro:", "/prompt_pro"]
+    prefix = next((w for w in start_words if msg_text.startswith(w)), None)
+    if not prefix:
+        return None
+    s = msg_text[len(prefix) :]
+    # If the first word is '@bot_name', remove it as it is considered part of the command when in a group chat.
+    if s.startswith("@"):
+        if not s.startswith(f"@{bot_name} "):
             return None
-        s = msg_text[len(bot_name) + 2 :]
-    else:
-        start_words = ["prompt:", "/prompt", "prompt_pro:", "/prompt_pro"]
-        prefix = next((w for w in start_words if msg_text.startswith(w)), None)
-        if not prefix:
-            return None
-        s = msg_text[len(prefix) :]
-        # If the first word is '@bot_name', remove it as it is considered part of the command when in a group chat.
-        if s.startswith("@"):
-            if not s.startswith(f"@{bot_name} "):
-                return None
-        s = " ".join(s.split(" ")[1:])
-    return s
+    return " ".join(s.split(" ")[1:])
 
 
 def pro_prompt_by_openai(prompt: str, openai_args: dict, client: OpenAI) -> str:
@@ -71,8 +71,7 @@ def pro_prompt_by_openai(prompt: str, openai_args: dict, client: OpenAI) -> str:
     completion = client.chat.completions.create(
         messages=[{"role": "user", "content": prompt}], **openai_args
     )
-    res = completion.choices[0].message.content.encode("utf8").decode()
-    return res
+    return completion.choices[0].message.content.encode("utf8").decode()
 
 
 def _image_to_data_uri(file_path):

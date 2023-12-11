@@ -130,7 +130,7 @@ def main():
             bot.reply_to(message, f"Rewrite image and prompt by GPT Vision: {s}")
         except Exception as e:
             bot.reply_to(message, "Something is wrong when GPT rewriting your prompt.")
-            print(str(e))
+            print(e)
         print(f"{message.from_user.id} send prompt: {s}")
         respond_prompt(bot, message, bing_cookie_pool, bing_cookie_cnt, s)
 
@@ -150,7 +150,7 @@ def main():
             bot.reply_to(message, f"Rewrite by GPT: {s}")
         except Exception as e:
             bot.reply_to(message, "Something is wrong when GPT rewriting your prompt.")
-            print(str(e))
+            print(e)
 
         print(f"{message.from_user.id} send prompt: {s}")
         respond_prompt(bot, message, bing_cookie_pool, bing_cookie_cnt, s)
