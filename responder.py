@@ -30,7 +30,7 @@ def respond_quota(
         bot.delete_message(msg.chat.id, msg.message_id)
     except Exception as e:
         # just pass the it when error
-        print(str(e))
+        print(e)
 
 
 def respond_prompt(
@@ -55,21 +55,19 @@ def respond_prompt(
             message,
             "There are no more cookies available, so we might have to wait for a while and there’s a chance of failure.",
         )
-        info_message_id: int = message.message_id
-        # No return here, because we can still use the cookie with no limit left.
+            # No return here, because we can still use the cookie with no limit left.
     else:
         # info message
         message: Message = bot.reply_to(
             message,
             f"Bing DALL-E 3 is currently generating images. Please wait. The remaining number of times we can use it is {limit-1}.",
         )
-        info_message_id: int = message.message_id
-
+    info_message_id: int = message.message_id
     # Generate the images
     try:
         images: List[str] = image_obj.get_images(prompt)
     except Exception as e:
-        print(str(e))
+        print(e)
         bot.reply_to(
             message,
             "Bing DALL-E 3 has prohibited your given prompt. Please modify it.",
@@ -80,9 +78,7 @@ def respond_prompt(
     save_path = prepare_save_images(message)
     Thread(target=save_images, args=(image_obj, images, save_path)).start()
 
-    # Send the images
-    photos_list = [InputMediaPhoto(i) for i in images]
-    if photos_list:
+    if photos_list := [InputMediaPhoto(i) for i in images]:
         try:
             bot.send_media_group(
                 message.chat.id,
@@ -91,7 +87,7 @@ def respond_prompt(
                 disable_notification=True,
             )
         except Exception as e:
-            print(str(e))
+            print(e)
             bot.reply_to(
                 message,
                 "Something is wrong sending the images to tg, please check the log",
@@ -102,7 +98,6 @@ def respond_prompt(
             bot.delete_message(message.chat.id, info_message_id)
         except Exception as e:
             # just pass the it when error
-            print(str(e))
-            pass
+            print(e)
     else:
         bot.reply_to(message, "There is an error generating images.")
